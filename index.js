@@ -13,7 +13,7 @@ app.use(require('./routes/clothes.route'))
 
 mongoose
   .connect(
-    process.env.MONGO,
+    process.env.MONGODB,
 
     {
       useNewUrlParser: true,
