@@ -7,7 +7,7 @@ const Favorite = require("../models/Favorite.model");
 module.exports.userController = {
   // Регистрация пользователя
   registration: async (req, res) => {
-    const { login, password, name } = req.body;
+    const { login, password, name} = req.body;
     const candidate = await User.findOne({ login });
     if (candidate) {
       return res
