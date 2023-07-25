@@ -1,14 +1,14 @@
-const Categories = require('../models/Categories.model')
+const Category = require('../models/Category.model')
 
-module.exports.categoriesController = {
+module.exports.categoryController = {
     getCategories: async (req, res) => {
-        const categories = await Categories.find()
-        res.json(categories)
+        const category = await Category.find()
+        res.json(category)
     },
 
     deleteCategories: async (req, res) => {
         try {
-            await Categories.findByIdAndRemove(req.params.id)
+            await Category.findByIdAndRemove(req.params.id)
             res.json('удалено')
             
         } catch (error) {
@@ -18,10 +18,10 @@ module.exports.categoriesController = {
 
     createCategories: async (req, res) => {
         try {
-            const categories = await Categories.create({
+            const category = await Category.create({
                 name: req.body.name
             })
-            return res.json(categories)
+            return res.json(category)
             
         } catch (error) {
             res.status(401).json(error.toString())
