@@ -4,16 +4,13 @@ const Cart = require('../models/Cart.model');
 const Cloth = require('../models/Cloth.model');
 const Order = require('../models/Order.model');
 
-exports.CartController = {
+module.exports.cartController = {
   // Получение содержимого корзины пользователя
   getUserCart: async (req, res) => {
     try {
       // Найти корзину пользователя по userId и заполнить информацию о товарах с помощью `populate`
       const data = await Cart.findOne({ userId: req.user.id }).populate({
-        path: 'cart.cloth',
-        populate: {
-          path: 'collections',
-        },
+        path: 'clothes.cloth',
       });
       res.json(data);
     } catch (error) {
@@ -29,10 +26,10 @@ exports.CartController = {
       // Найти информацию о размерах товара по его идентификатору
       const { size } = await Cloth.findById(id);
       const { inStock } = size.find((item) => item.size === req.body.size);
-      const { cart } = await Cart.findOne({ userId: req.user.id });
+      const { clothes } = await Cart.findOne({ userId: req.user.id });
 
       // Проверить, есть ли уже такой товар в корзине пользователя и сколько доступно в наличии
-      const inCart = cart.find(
+      const inCart = clothes.find(
         (item) => item.cloth.toString() === id && item.size === req.body.size
       );
 
@@ -44,7 +41,7 @@ exports.CartController = {
 
       // Обновление корзины пользователя: увеличить количество товара, если он уже есть в корзине,
       // или добавить новый элемент в корзину
-      const newCart = cart.map((item) => {
+      const newCart = clothes.map((item) => {
         if (item.cloth.toString() === id && item.size === req.body.size) {
           item.amount += 1;
         }
@@ -68,10 +65,10 @@ exports.CartController = {
   minusCloth: async (req, res) => {
     try {
       const { id } = req.params;
-      const { cart } = await Cart.findOne({ userId: req.user.id });
+      const { clothes } = await Cart.findOne({ userId: req.user.id });
 
       // Уменьшить количество товара в корзине, если оно больше 1
-      const newCart = cart.map((item) => {
+      const newCart = clothes.map((item) => {
         if (item.cloth.toString() === id && item.size === req.body.size) {
             // уменьшаем на 1 но не меньше 0
           item.amount = Math.max(item.amount - 1, 0);
@@ -92,10 +89,10 @@ exports.CartController = {
   removeCloth: async (req, res) => {
     try {
       const { id } = req.params;
-      const { cart } = await Cart.findOne({ userId: req.user.id });
+      const { clothes } = await Cart.findOne({ userId: req.user.id });
 
       // Фильтрация корзины, чтобы удалить товар с заданным id и размером
-      const newCart = cart.filter(
+      const newCart = clothes.filter(
         (item) => item.cloth.toString() !== id || item.size !== req.body.size
       );
 
@@ -110,7 +107,7 @@ exports.CartController = {
   buyCloths: async (req, res) => {
     try {
       // Найти корзину пользователя и заполнить информацию о товарах
-      const { cart } = await Cart.findOne({ userId: req.user.id }).populate("cart.cloth").lean();
+      const { clothes } = await Cart.findOne({ userId: req.user.id }).populate("cart.cloth").lean();
   
       // Обновить наличие товаров в базе данных
       for (const item of cart) {
@@ -130,7 +127,7 @@ exports.CartController = {
       }
   
       // Рассчитать общую стоимость покупки
-      const total = cart.reduce((accumulator, item) => {
+      const total = clothes.reduce((accumulator, item) => {
         return accumulator + item.cloth.price * item.amount;
       }, 0);
   
