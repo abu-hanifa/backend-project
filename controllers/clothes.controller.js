@@ -12,7 +12,7 @@ module.exports.clothesController = {
   },
   getOneCloth: async (req, res) => {
     try {
-      const data = await Cloth.find();
+      const data = await Cloth.findById(req.params.id);
       res.json(data);
     } catch (error) {
       res.json({ error: error.message });
